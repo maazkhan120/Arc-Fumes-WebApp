@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #ffffff;
+    --surface: #faf8f4;
+    --gold: #9e8c78;
+    --gold-light: #b5a492;
+    --gold-dark: #7d6e5d;
+    --text: #0d0c0a;
+    --text-dim: #2a2723;
+    --muted: #5e574f;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-dark: rgba(255, 255, 255, 0.1);
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Brand wordmark */
+.brand-wordmark {
+  font-family: var(--font-jost), "Jost", sans-serif;
+  letter-spacing: 0.25em;
+  text-transform: lowercase;
+}
+
+/* Luxury Display Headline */
+.font-display {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+}
+
+/* Arch glow animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes ring-expand {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.35;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 5s ease-in-out infinite;
+}
+
+.animate-ring-expand-1 {
+  animation: ring-expand 6s ease-in-out infinite;
+}
+
+.animate-ring-expand-2 {
+  animation: ring-expand 7s ease-in-out infinite 1s;
+}
+
+.animate-ring-expand-3 {
+  animation: ring-expand 8s ease-in-out infinite 2s;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #faf8f4;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4c8be;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9e8c78;
+}
+
+/* Shimmer overlay */
+.liquid-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+}
+

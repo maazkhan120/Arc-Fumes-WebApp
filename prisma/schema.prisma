@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  MALE
+  FEMALE
+  UNISEX
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  DISPATCHED
+  COMPLETED
+  CANCELLED
+  RETURNED
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+}
+
+model AdminUser {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("admin_users")
+}
+
+model Product {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  slug             String         @unique
+  description      String
+  shortDescription String
+  price            Float
+  compareAtPrice   Float?
+  category         Category       @default(UNISEX)
+  stock            Int            @default(0)
+  sku              String         @unique
+  size             String         @default("30ml EDP")
+  fragranceNotes   String?
+  topNotes         String
+  middleNotes      String
+  baseNotes        String
+  featured         Boolean        @default(false)
+  active           Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  images           ProductImage[]
+  orderItems       OrderItem[]
+
+  @@index([category])
+  @@index([featured])
+  @@index([active])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @db.ObjectId
+  imageUrl  String
+  r2Key     String?
+  altText   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([sortOrder])
+  @@map("product_images")
+}
+
+model Order {
+  id             String               @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber    String               @unique
+  customerName   String
+  email          String
+  phone          String
+  address        String
+  city           String
+  province       String
+  postalCode     String?
+  notes          String?
+  subtotal       Float
+  shippingAmount Float                @default(0)
+  totalAmount    Float
+  paymentMethod  PaymentMethod        @default(COD)
+  paymentStatus  PaymentStatus        @default(PENDING)
+  status         OrderStatus          @default(PENDING)
+  trackingNumber String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
+  emailLogs      EmailLog[]
+
+  @@index([email])
+  @@index([phone])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId      String   @db.ObjectId
+  productId    String?  @db.ObjectId
+  productName  String
+  productImage String?
+  quantity     Int      @default(1)
+  unitPrice    Float
+  totalPrice   Float
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String      @db.ObjectId
+  status    OrderStatus
+  comment   String?
+  createdAt DateTime    @default(now())
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([createdAt])
+  @@map("order_status_history")
+}
+
+model EmailLog {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId      String?  @db.ObjectId
+  recipient    String
+  subject      String
+  status       String   // "SENT", "FAILED"
+  errorMessage String?
+  createdAt    DateTime @default(now())
+  order        Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([recipient])
+  @@index([createdAt])
+  @@map("email_logs")
+}
+
+model ContactMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  status    String   @default("NEW") // "NEW", "READ", "REPLIED"
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
